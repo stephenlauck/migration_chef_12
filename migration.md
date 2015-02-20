@@ -1,7 +1,7 @@
 # Migrating from Chef 10.x to 12.x
 
 ## Overview:
-The steps below pretty much follow the documentation provided on docs.opscode.com, but also leverage git as a way to manage multiple knife.rb configurations in your .chef directory, and uses the chef-client cookbook to rollout the chef_server_url attribute to the client.rb file on your managed nodes.
+The steps below follow the documentation provided on docs.opscode.com, but also leverage git as a way to manage multiple knife.rb configurations in your .chef directory, and uses the chef-client cookbook to rollout the chef_server_url attribute to the client.rb file on your managed nodes.
 
 ## Before you begin:
 ###You should already have the following setup:
@@ -48,14 +48,28 @@ git add .
 git commit -m “add credentials for Chef 10.x”
 ```
 
-Use versioned cookbooks (ensures you download all versions of your Chef cookbooks).
+Add versioned cookbooks to the knife.rb to download all versions of your Chef cookbooks in case previous versions have been locked in environments.
 
-`echo ‘version_cookbooks true’ >> ~/chef_migration/.chef/knife.rb`
+`emacs .chef/knife.rb`
+
+```
+current_dir = File.dirname(__FILE__)
+log_level                :info
+log_location             STDOUT
+node_name                "customer"
+client_key               "#{current_dir}/customer.pem"
+validation_client_name   "customer-org-validator"
+validation_key           "#{current_dir}/customer-org-validator.pem"
+chef_server_url          "https://api.opscode.com/organizations/customer-org"
+syntax_check_cache_path  "#{ENV['HOME']}/.chef/syntaxcache"
+cookbook_path            ["#{current_dir}/../cookbooks"]
+
+versioned_cookbooks true
+```
 
 Download all of the data from your Open Source Chef Server:
 
 `knife download / --chef-repo-path ~/chef_migration/`
-
 
 Create a new git branch for the Enterprise Chef Server configurations:
 
