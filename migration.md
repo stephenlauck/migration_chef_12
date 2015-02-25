@@ -113,7 +113,7 @@ Update the chef_server_url attribute in your environment file to point to the 12
 ```
 chef_client:
   config:
-    chef_server_url: https://<EC.DOMAIN.COM/organizations/ORGNAME
+    chef_server_url: https://<12xServerURL>/organizations/ORGNAME
 ```
 
 Initiate a chef-client run on a test set of nodes to pick up the change to point to the 12.x server and debug any issues
