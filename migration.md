@@ -144,3 +144,7 @@ chef_client:
 Initiate a chef-client run on a test set of nodes to pick up the change to point to the 12.x server and debug any issues
 
 You should now see your nodes checking in on the 12.x server.
+
+Notes:
+
+https://gist.github.com/irvingpop/6c545a335febc81ac950
