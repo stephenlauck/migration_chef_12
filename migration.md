@@ -102,6 +102,29 @@ Upload the data from your 10.x server to the 12.x:
 Warnings or errors may occur if
 * org names differ
 
+Create the following script and run it on the Chef server to correctly set permissions for clients
+
+```
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'chef/knife'
+
+Chef::Config.from_file(File.join(Chef::Knife.chef_config_dir, 'knife.rb'))
+rest = Chef::REST.new(Chef::Config[:chef_server_url])
+
+Chef::Node.list.each do |node|
+  %w{read update delete grant}.each do |perm|
+    ace = rest.get("nodes/#{node[0]}/_acl")[perm]
+    ace['actors'] << node[0] unless ace['actors'].include?(node[0])
+    rest.put("nodes/#{node[0]}/_acl/#{perm}", perm => ace)
+    puts "Client \"#{node[0]}\" granted \"#{perm}\" access on node \"#{node[0]}\""
+  end
+end
+```
+
+Execute the script on your 12.x server
+
+`knife exec fix_permissions.rb`
 
 Switch back to your 10x git branch:
 
