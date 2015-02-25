@@ -108,7 +108,9 @@ Switch back to your 10x git branch:
 `git checkout 10x_server`
 
 
-Update the chef_server_url attribute in your environment file to point to the 12.x server
+Add the [chef-client::config](https://github.com/opscode-cookbooks/chef-client#usage) recipe to the nodes you want to migrate
+
+Update the chef_server_url attribute in an environment file to point to the 12.x server
 
 ```
 chef_client:
