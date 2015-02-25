@@ -43,7 +43,6 @@ Test and verify the credentials. You should see ORGNAME-validator in the list.
 Check in your changes to the current git branch:
 
 ```
-git init
 git add .
 git commit -m “add credentials for Chef 10.x”
 ```
@@ -67,74 +66,56 @@ cookbook_path            ["#{current_dir}/../cookbooks"]
 versioned_cookbooks true
 ```
 
-Download all of the data from your Open Source Chef Server:
+Download all of the data from your Open Source Chef Server, make sure you are in ~/chef_migration
 
-`knife download / --chef-repo-path ~/chef_migration/`
+`knife download / --chef-repo-path .`
+
+Commit the download to the branch
+
+```
+git add .
+git commit -m “download of Chef 10.x”
+```
 
 Create a new git branch for the Enterprise Chef Server configurations:
 
-$ git checkout -b ENTERPRISE_CHEF_SERVER
+$ git checkout -b 12x_server
 
+Copy your .chef dir for the 12.x server credentials into the chef_migration dir
+`cp -r ~/PATHTOYOUR/.chef .`
 
-Setup your knife.rb and .pem file with access to the Enterprise:
+Test and verify the credentials. You should see ORGNAME-validator in the list.
 
-$ cat /path/to/ec/.chef/knife.rb > $ cat ~/chef_migration/.chef/knife.rb
-$ cat /path/to/ec/.chef/USER.pem > $ cat ~/chef_migration/.chef/USER.pem
-
+`knife client list`
 
 Check in your changes to the knife.rb to the current git branch:
 
-$ git init
-$ git add .
-$ git commit -m “Initial commit to ENTERPRISE_CHEF_SERVER”
+```
+git add .
+git commit -m “add credentials for Chef 12.x”
+```
+
+Upload the data from your 10.x server to the 12.x:
+
+`knife upload / --chef-repo-path .`
+
+Warnings or errors may occur if
+* org names differ
 
 
-Upload the data from your OSC server to the EC:
+Switch back to your 10x git branch:
 
-$ knife upload / --chef-repo-path ~/chef_migration/downloads
-
-
-Create the following script ~/chef_migration/fix_permissions.rb
-
-#!/usr/bin/env ruby
-require 'rubygems'
-require 'chef/knife'
-
-Chef::Config.from_file(File.join(Chef::Knife.chef_config_dir, 'knife.rb'))
-rest = Chef::REST.new(Chef::Config[:chef_server_url])
-
-Chef::Node.list.each do |node|
-  %w{read update delete grant}.each do |perm|
-    ace = rest.get("nodes/#{node[0]}/_acl")[perm]
-    ace['actors'] << node[0] unless ace['actors'].include?(node[0])
-    rest.put("nodes/#{node[0]}/_acl/#{perm}", perm => ace)
-    puts "Client \"#{node[0]}\" granted \"#{perm}\" access on node \"#{node[0]}\""
-  end
-end
-   The above code snippet was taken from http://docs.opscode.com/chef/migrate_to_hosted.html
+`git checkout 10x_server`
 
 
+Update the chef_server_url attribute in your environment file to point to the 12.x server
 
-Execute the script on your Enterprise Chef Server:
-
-$ knife exec fix_permissions.rb
-
-
-Switch back to your OSC git branch:
-
-$ git checkout OPEN_SOURCE_CHEF_SERVER
-
-
-Update the chef_server_url attribute in your environment file to point to the new EC
-
+```
 chef_client:
   config:
     chef_server_url: https://<EC.DOMAIN.COM/organizations/ORGNAME
+```
 
+Initiate a chef-client run on a test set of nodes to pick up the change to point to the 12.x server and debug any issues
 
-Initiate a chef-client run on your nodes to pick up the change to point to the EC
-
-$ sudo chef-client
-
-
-You should now see your nodes checking in. Login to the Enterprise Chef server
+You should now see your nodes checking in on the 12.x server.
