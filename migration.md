@@ -1,4 +1,5 @@
 # Migrating from Chef 10.x to 12.x
+This document was originally created for a migration from Chef 10.  However, this guide works just as we for a migration from Chef 11.x to Chef 12.x.  Wherever you see Chef 10 you can replace with Chef 11.
 
 ## Overview:
 The steps below follow the documentation provided on docs.opscode.com, but also leverage git as a way to manage multiple knife.rb configurations in your .chef directory, and uses the chef-client cookbook to rollout the chef_server_url attribute to the client.rb file on your managed nodes.
@@ -7,7 +8,7 @@ The steps below follow the documentation provided on docs.opscode.com, but also 
 ###You should already have the following setup:
 * An Chef 10.x server already set up and managing nodes
 * An Chef 12.x server configured with access to network that the 10.x server is already managing
-* A Chef Workstation with Chefdk adn git installed with access to both your 10.x server as well as the 12.x server
+* A Chef Workstation with Chefdk and git installed with access to both your 10.x server as well as the 12.x server
 * The [chef-client](https://github.com/opscode-cookbooks/chef-client) cookbook running on the nodes you are managing
 
 Create a new folder where you intend to do your migration:
@@ -29,7 +30,7 @@ git add .
 git commit -m “Initial commit”
 ```
 
-Create a new git branch with the name of your open source chef server:
+Create a new git branch with the name of your current chef server:
 
 `git checkout -b 10x_server`
 
